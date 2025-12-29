@@ -25,7 +25,7 @@ The system is built on a specialized "Fast/Deep" lane architecture:
 *   **Frontend**: Next.js 14, React, Tailwind CSS, Recharts, Lucide Icons.
 *   **Infrastructure**: Docker (planned), Redis (planned for caching).
 
-## ⚡ Quick Start
+## Quick Start
 
 ### Prerequisites
 *   Python 3.10+
