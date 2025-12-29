@@ -1,0 +1,32 @@
+# Python
+__pycache__/
+*.py[cod]
+*$py.class
+venv/
+.env
+
+# JavaScript / Node
+node_modules/
+.next/
+out/
+build/
+dist/
+npm-debug.log*
+yarn-debug.log*
+yarn-error.log*
+.DS_Store
+
+# Data
+data/*.csv
+data/
+fast_lane/*.model
+fast_lane/*.pkl
+deep_lane/*.pt
+dashboard/public/live_data.json
+
+# IDE
+.vscode/
+.idea/
+
+# Antigravity/System
+.gemini/

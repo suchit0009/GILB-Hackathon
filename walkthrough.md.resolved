@@ -1,0 +1,78 @@
+# Sentinel Fortress: End-to-End System Walkthrough
+
+This document outlines the complete architecture of the **Sentinel Fortress** system, explaining how data flows from a user's phone to the Investigator's Dashboard.
+
+---
+
+## 1. The Origin (Inception)
+We started with a "Hackathon Concept Paper" describing a desire to stop fraud using AI. We evolved this into **"Sentinel Fortress" (Version 3.0)**, a production-grade architecture designed for High-Frequency Trading (HFT) speeds and Zero-Trust security.
+
+## 2. The Input Layer: Zero-Trust Telemetry
+**File**: [client_sdk/biometrics.js](file:///Users/suchit/Desktop/GILB%20Hackathon/client_sdk/biometrics.js)
+
+Every time a user initiated a transaction, we don't just send money; we send **Behavioral Telemetry**.
+*   **What it does**: Captures `gyroscope` (hand wobble), `touch_pressure` (finger force), and `typing_cadence`.
+*   **Why**: To detect Bots. A bot has 0 wobble and perfect typing. A human is messy.
+*   **Data Flow**: This data is attached to the Transaction Header and sent to the backend.
+
+## 3. The Fast Path: "The Gatekeeper" (< 200ms)
+**Files**: [fast_lane/circuit_breaker.py](file:///Users/suchit/Desktop/GILB%20Hackathon/fast_lane/circuit_breaker.py), [fast_lane/inference.py](file:///Users/suchit/Desktop/GILB%20Hackathon/fast_lane/inference.py)
+
+This is the **Synchronous Blocking Layer**. It decides `ALLOW` or `BLOCK` instantly.
+
+1.  **Circuit Breaker**: First, checks system health.
+    *   If latency > 200ms, it triggers a **Fail-Safe**.
+    *   *Low Value* (< 500 NPR) -> **Fail-Open** (Allow, keep customer happy).
+    *   *High Value* (> 500 NPR) -> **Fail-Closed** (Block, protect funds).
+2.  **Inference Engine**:
+    *   Fetches **Pre-Computed Risk** from Redis (e.g., "Was this user suspicious yesterday?").
+    *   Runs a lightweight **XGBoost Model** on the transaction details.
+    *   **Output**: A concise `Risk Score` (0.0 to 1.0).
+
+> **In the Dashboard**: This speed is visualized in the **Top KPI Ribbon** as "TPS" (Transactions Per Second) and "Latency" (42ms).
+
+## 4. The Deep Path: "The Detective" (Async)
+**File**: [deep_lane/graph_worker.py](file:///Users/suchit/Desktop/GILB%20Hackathon/deep_lane/graph_worker.py)
+
+Once the transaction is passed, the heavy lifting begins **Asynchronously** (in the background).
+
+1.  **Graph Analysis (Neo4j)**:
+    *   The system maps the money flow.
+    *   **Smurfing Detection**: Is one account receiving money from 50 small accounts? (High Fan-In).
+    *   **Circular Loops**: Did A send to B, B to C, and C back to A? (Money Laundering).
+2.  **Hunter Agent ([agents/hunter_agent.py](file:///Users/suchit/Desktop/GILB%20Hackathon/agents/hunter_agent.py))**:
+    *   If the Graph Worker finds a "Mule Ring", it wakes up the Hunter.
+    *   **Action**: Automatically calls the Ledger API to **FREEZE ASSETS**.
+
+> **In the Dashboard**: This is visualized in the **Central 3D WebGL Graph**. The large Red Node is the "Mule Target" identified by this deep analysis layer.
+
+## 5. The Nerve Center: Investigator Dashboard
+**File**: [dashboard/app/page.js](file:///Users/suchit/Desktop/GILB%20Hackathon/dashboard/app/page.js)
+
+The Dashboard is the visual representation of all the backend engines working in unison.
+
+### A. The KPI Ribbon (Top)
+*   **TPS / Latency**: Real-time health metrics from the **Fast Path**.
+*   **Sparklines**: Green glowing lines show the trend over the last hour.
+
+### B. The 3D Hero Graph (Center)
+*   **Visual**: A red central node with orbiting satellites.
+*   **Source**: Represents the **Deep Path Node Embeddings**. When [graph_worker.py](file:///Users/suchit/Desktop/GILB%20Hackathon/deep_lane/graph_worker.py) flags a cluster, it renders here so investigators can see the relationship between the "Smurfs" (small nodes) and the "Mule" (big red node).
+
+### C. Live Threats Table (Right)
+*   **Data**: A structured stream of high-risk transactions.
+*   **Source**: The output of the **Inference Engine**. Rows highlighted in **Red** are transactions blocked by the **Circuit Breaker** or **XGBoost**.
+
+### D. Command Zone (Bottom Right)
+*   **Button**: `FREEZE ASSETS`
+*   **Toggle**: `HUNTER AGENT`
+*   **Function**: These controls manually override the **Active Defense Agents**. Flipping the switch to "OFF" would stop [hunter_agent.py](file:///Users/suchit/Desktop/GILB%20Hackathon/agents/hunter_agent.py) from auto-freezing accounts.
+
+---
+
+## Summary of Flow
+1.  **User** moves phone -> [biometrics.js](file:///Users/suchit/Desktop/GILB%20Hackathon/client_sdk/biometrics.js) captures data.
+2.  **Transaction** sent -> [circuit_breaker.py](file:///Users/suchit/Desktop/GILB%20Hackathon/fast_lane/circuit_breaker.py) checks latency.
+3.  **Fast Path** -> [inference.py](file:///Users/suchit/Desktop/GILB%20Hackathon/fast_lane/inference.py) predicts Fraud (Block/Allow).
+4.  **Deep Path** -> [graph_worker.py](file:///Users/suchit/Desktop/GILB%20Hackathon/deep_lane/graph_worker.py) finds the Network Ring.
+5.  **Dashboard** -> Visualizes the Risk Score, showing the newly detected "Mule Node" in 3D.

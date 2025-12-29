@@ -1,0 +1,88 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+:root {
+  --font-mono: 'Courier New', monospace;
+  /* Fallback */
+}
+
+body {
+  background-color: #020617;
+  /* deep-navy */
+  color: #e2e8f0;
+  min-height: 100vh;
+  /* Cyberpunk Grid Background */
+  background-image:
+    radial-gradient(circle at 50% 0%, #1e293b 0%, transparent 50%),
+    linear-gradient(rgba(0, 240, 255, 0.03) 1px, transparent 1px),
+    linear-gradient(90deg, rgba(0, 240, 255, 0.03) 1px, transparent 1px);
+  background-size: 100% 100%, 40px 40px, 40px 40px;
+}
+
+@layer utilities {
+  .glass-panel {
+    @apply bg-slate-900/60 backdrop-blur-md border border-white/10 shadow-2xl;
+  }
+
+  .fui-corners {
+    position: relative;
+    border: 1px solid rgba(255, 255, 255, 0.1);
+  }
+
+  .fui-corners::before {
+    content: '';
+    position: absolute;
+    top: -1px;
+    left: -1px;
+    width: 8px;
+    height: 8px;
+    border-top: 2px solid #00F0FF;
+    border-left: 2px solid #00F0FF;
+  }
+
+  .fui-corners::after {
+    content: '';
+    position: absolute;
+    bottom: -1px;
+    right: -1px;
+    width: 8px;
+    height: 8px;
+    border-bottom: 2px solid #00F0FF;
+    border-right: 2px solid #00F0FF;
+  }
+
+  .neon-text-blue {
+    text-shadow: 0 0 8px rgba(0, 240, 255, 0.6);
+  }
+
+  .neon-text-red {
+    text-shadow: 0 0 8px rgba(255, 0, 60, 0.6);
+  }
+
+  .perspective-1000 {
+    perspective: 1000px;
+  }
+
+  .transform-style-3d {
+    transform-style: preserve-3d;
+  }
+
+  /* Custom Scrollbar */
+  .custom-scrollbar::-webkit-scrollbar {
+    width: 6px;
+  }
+
+  .custom-scrollbar::-webkit-scrollbar-track {
+    background: #0f172a;
+  }
+
+  .custom-scrollbar::-webkit-scrollbar-thumb {
+    background: #334155;
+    border-radius: 3px;
+  }
+
+  .custom-scrollbar::-webkit-scrollbar-thumb:hover {
+    background: #475569;
+  }
+}

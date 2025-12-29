@@ -1,0 +1,72 @@
+# Project Scope & Software Requirements Specification (SRS)
+## Financial Fraud Detection System (FFDS) - "Sentinel Fortress"
+
+> **Version**: 2.0 (Fortress Upgrade)
+> **Prepared By**: Senior AI Consultant
+> **Client**: Nepal-based Financial Institution
+
+---
+
+## 1. Project Scope
+
+### 1.1 Executive Summary
+"Sentinel Fortress" is an active defense ecosystem, not just a passive detection tool. It bifurcates the transaction flow into a low-latency blocking path (Pre-computed AI) and a deep-analysis asynchronous path (Graph/Agentic AI). It incorporates behavioral biometrics for zero-trust authentication and autonomous agents for active threat containment.
+
+### 1.2 Key Architectural Shifts
+*   **Split-Path Architecture**:
+    *   **Fast Path (Blocking)**: < 200ms. Uses tabular ML (XGBoost) and pre-computed embeddings (Redis).
+    *   **Deep Path (Async)**: Near-real-time. Uses GNNs (Neo4j) and Agentic investigators.
+*   **Shadow Mode Deployment**: Challenger models run asynchronously, logging predictions without blocking customers.
+*   **Fail-Safe Logic**: "Fail-Open" for low-risk/low-value txns (preserve UX), "Fail-Closed" for high-risk/high-value (preserve funds).
+
+### 1.3 In-Scope
+*   **Behavioral Biometrics SDK**: Mobile/Web module capturing gyroscope, touch pressure, and typing cadence.
+*   **Hybrid AI Engine**:
+    *   *Liveness LSTM*: Analyzes keystroke/sensor dynamics.
+    *   *Scoring Engine*: Lightweight XGBoost on tabular features + embeddings.
+    *   *Graph Engine (Async)*: Deep link analysis for "Hundi" / circular trading.
+*   **Auto-Immunology Agents**: Autonomous agents that freeze funds, trace hops, and inject deception (poison pills).
+*   **Circuit Breaker Policy**: Automated failover logic.
+
+---
+
+## 2. Software Requirements Specification (SRS)
+
+### 2.1 User & Agent Personas
+1.  **L1 Investigator**: Reviews "Orange" alerts.
+2.  **L2/Senior Investigator**: Deep dives into "Red" networks.
+3.  **Hunter Agent (AI)**: Autonomous agent that freezes assets and maps networks.
+4.  **Decoy Agent (AI)**: Injects dummy data to confuse attackers during recon.
+
+### 2.2 Functional Requirements
+
+#### 2.2.1 Data Ingestion & Behavioral Telemetry
+*   **FR-01**: Ingest standard Transaction Log (5,000 TPS) + Biometric Signals (Gyro/Touch).
+*   **FR-02**: **Liveness Score**: LSTM model computes "Human vs Bot" probability from raw sensor data.
+
+#### 2.2.2 Fast Path (The Gatekeeper) - < 200ms
+*   **FR-03**: Query Feature Store (Redis) for pre-computed Graph Embeddings (Node2Vec score cached from previous async run).
+*   **FR-04**: Execute XGBoost Champion Model.
+*   **FR-05**: **Circuit Breaker**: If service response > 200ms:
+    *   Txn < 500 NPR: **ALLOW** (Fail-Open).
+    *   Txn > 500 NPR: **BLOCK** (Fail-Closed).
+
+#### 2.2.3 Deep Path (The Detective) - Async
+*   **FR-06**: **Shadow Mode**: Challenger models run here.
+*   **FR-07**: **Graph Analysis**: traverse 3+ hops in Neo4j to identify circular loops or high fan-in (Smurfing). Trigger "Hunter Agent" if shadow economy node detected.
+
+#### 2.2.4 Active Defense (Auto-Immunology)
+*   **FR-08**: **Containment**: If Risk Score > 95, Hunter Agent auto-freezes destination wallet and flags downstream hops.
+*   **FR-09**: **Poison Pill**: If API probing detected, Decoy Agent returns valid-looking but fake account data to the attacker.
+
+### 2.3 Non-Functional Requirements (NFR)
+*   **NFR-01: Latency**: Fast Path p99 < 200ms. Deep Path < 5s.
+*   **NFR-02: Resilience**: Circuit Breakers must engage within 10ms of timeout.
+*   **NFR-03: Security**: Biometric data must be end-to-end encrypted and not stored raw (vectorize and discard).
+
+### 2.4 Technology Stack
+*   **Edge**: React Native / JS SDK (Biometrics)
+*   **Streaming**: Kafka (Topics: `tx-raw`, `tx-analysed`, `active-defense`)
+*   **Fast Store**: Redis Cluster (Embeddings + Features)
+*   **Graph Store**: Neo4j Fabric (Sharded)
+*   **Compute**: Kubernetes (GPU nodes for GNN/LSTM)
