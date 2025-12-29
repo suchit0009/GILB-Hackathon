@@ -2,7 +2,7 @@
 
 **Sentinel Fortress** is a production-grade, high-velocity fraud detection system designed for financial institutions. It employs a **Split-Path Architecture** to handle high-throughput transactions with millisecond latency while responding to complex fraud patterns using Graph Intelligence and Agentic Active Defense.
 
-## 🚀 Key Features
+## Key Features
 
 *   **Fast Path (<200ms)**: Real-time blocking using **XGBoost** (trained on PaySim) and a **Circuit Breaker** resilience pattern.
 *   **Deep Path (Async)**: Advanced graph mining using **GraphSAGE (GNN)** and **NetworkX** (Cycle Detection, PageRank) to detect money mule rings and loop anomalies.
@@ -10,7 +10,7 @@
 *   **Active Defense**: Autonomous **Hunter Agents** capable of freezing assets and "immunizing" the network against detected threats.
 *   **Cyberpunk SOC Dashboard**: A Next.js-based Visual Command Center for real-time threat monitoring and graph exploration.
 
-## 🏗️ Architecture
+## Architecture
 
 The system is built on a specialized "Fast/Deep" lane architecture:
 
@@ -18,7 +18,7 @@ The system is built on a specialized "Fast/Deep" lane architecture:
 2.  **Deep Lane**: Asynchronous. Kafka Stream -> Graph Worker -> Neo4j/GNN -> Risk Score Update.
 3.  **Command Center**: Real-time Dashboard visualizing live traffic and threats.
 
-## 🛠️ Tech Stack
+## Tech Stack
 
 *   **AI/ML**: XGBoost, PyTorch Geometric (GraphSAGE), NetworkX, Pandas.
 *   **Backend**: Python, FastAPI (implied structure), Kafka (Simulated).
@@ -54,7 +54,7 @@ npm run dev
 ```
 Open [http://localhost:3000](http://localhost:3000) to view the Live SOC.
 
-## 📂 Project Structure
+## Project Structure
 
 *   `fast_lane/`: Real-time inference engine and circuit breaker.
 *   `deep_lane/`: Graph analytics and GNN training scripts.
@@ -64,7 +64,7 @@ Open [http://localhost:3000](http://localhost:3000) to view the Live SOC.
 *   `client_sdk/`: JavaScript SDK for biometric telemetry.
 *   `data_pipeline/`: ETL scripts for PaySim data.
 
-## 🧪 Testing
+## Testing
 
 Run the regression suite to verify system integrity:
 ```bash
